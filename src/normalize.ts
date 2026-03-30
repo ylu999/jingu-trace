@@ -54,12 +54,16 @@ export const NORMALIZE_FIELDS: ReadonlySet<string> = new Set(
 )
 
 /**
- * Normalize a single event for trace comparison.
- * Strips all whitelisted fields and replaces parent_event_id with
- * a parent index (position in the event array) for structural comparison.
+ * Strip volatile fields from a single event.
+ * Removes NORMALIZE_WHITELIST fields and replaces parent_event_id UUID with
+ * a parent index for structural comparison.
+ *
+ * This is layer 1 of trace canonicalization.
+ * Layer 2 (structural normalization) is policy-core's normalizeTrace().
+ * DO NOT use this function directly for trace comparison — use assertTraceEquivalence().
  */
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-export function normalizeEvent(event: Record<string, any>, index: number, all: Record<string, any>[]): Record<string, unknown> {
+export function stripVolatileField(event: Record<string, any>, index: number, all: Record<string, any>[]): Record<string, unknown> {
   void index  // index not used in this implementation, but kept for API symmetry
   const out: Record<string, unknown> = {}
   for (const [k, v] of Object.entries(event)) {
@@ -76,10 +80,13 @@ export function normalizeEvent(event: Record<string, any>, index: number, all: R
 }
 
 /**
- * Normalize a full trace for comparison.
- * Returns a JSON-serializable structure suitable for deepEqual assertions.
+ * Strip volatile fields from all events in a trace.
+ * This is layer 1 of canonicalization. Output is suitable for passing to
+ * policy-core's normalizeTrace() for structural comparison.
+ *
+ * DO NOT use this function directly for trace comparison — use assertTraceEquivalence().
  */
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-export function normalizeTrace(events: Record<string, any>[]): Record<string, unknown>[] {
-  return events.map((e, i) => normalizeEvent(e, i, events))
+export function stripVolatileFields(events: Record<string, any>[]): Record<string, unknown>[] {
+  return events.map((e, i) => stripVolatileField(e, i, events))
 }
