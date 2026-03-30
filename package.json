@@ -1,0 +1,24 @@
+{
+  "name": "@jingu/trace",
+  "version": "0.1.0",
+  "type": "module",
+  "main": "./dist/src/index.js",
+  "types": "./dist/src/index.d.ts",
+  "exports": {
+    ".": {
+      "import": "./dist/src/index.js",
+      "types": "./dist/src/index.d.ts"
+    }
+  },
+  "scripts": {
+    "build": "tsc",
+    "test": "tsc && node --test dist/tests/unit/emitter/loop-emitter.test.js dist/tests/integration/loop-events-integration.test.js"
+  },
+  "dependencies": {
+    "@jingu/policy-core": "file:../jingu-policy-core"
+  },
+  "devDependencies": {
+    "typescript": "^5.4.0",
+    "@types/node": "^22.0.0"
+  }
+}
